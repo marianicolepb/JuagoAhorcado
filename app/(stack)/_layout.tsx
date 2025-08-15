@@ -47,6 +47,20 @@ export default function StackLayout() {
         headerShown: true
       }} 
     />
+    <Stack.Screen 
+      name="rooms/lobby" 
+      options={{ 
+        title: 'Sala de Espera',
+        headerShown: true,
+        headerBackVisible: false
+      }} 
+    />
+    <Stack.Screen 
+      name="game" 
+      options={{ 
+        headerShown: false
+      }} 
+    />
     </Stack>
   );
 }
