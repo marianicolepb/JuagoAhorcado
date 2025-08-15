@@ -69,7 +69,7 @@ export default function LobbyScreen() {
     setLoading(true);
     try {
       // Obtener palabra aleatoria
-      const word = await WordService.getRandomWord(room.difficulty);
+      const word = await WordService.getRandomWord(room.difficulty, room.category);
       if (!word) {
         Alert.alert('Error', 'No se pudo obtener una palabra para el juego');
         return;

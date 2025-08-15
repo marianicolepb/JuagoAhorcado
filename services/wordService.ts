@@ -88,13 +88,21 @@ export class WordService {
   }
 
   // Obtener palabra aleatoria por dificultad
-  static async getRandomWord(difficulty?: 'easy' | 'medium' | 'hard'): Promise<Word | null> {
+  static async getRandomWord(difficulty?: 'easy' | 'medium' | 'hard', category?: string): Promise<Word | null> {
     try {
-      let q = query(this.wordsCollection);
+      const conditions = [];
       
       if (difficulty) {
-        q = query(this.wordsCollection, where('difficulty', '==', difficulty));
+        conditions.push(where('difficulty', '==', difficulty));
       }
+      
+      if (category && category !== 'todas') {
+        conditions.push(where('category', '==', category));
+      }
+      
+      const q = conditions.length > 0 
+        ? query(this.wordsCollection, ...conditions)
+        : query(this.wordsCollection);
       
       const querySnapshot = await getDocs(q);
       

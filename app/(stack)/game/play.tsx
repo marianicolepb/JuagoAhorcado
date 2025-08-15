@@ -287,6 +287,25 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 20,
   },
+  gameMetaInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  categoryText: {
+    fontSize: 14,
+    color: '#e0e7ff',
+    fontWeight: '500',
+  },
+  difficultyText: {
+    fontSize: 14,
+    color: '#e0e7ff',
+    fontWeight: '500',
+  },
   turnInfo: {
     alignItems: 'center',
     marginBottom: 12,
@@ -320,12 +339,19 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   gameStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
   wrongGuesses: {
     fontSize: 16,
     color: '#f87171',
     fontWeight: '600',
+  },
+  hintStatus: {
+    fontSize: 14,
+    color: '#94a3b8',
+    fontWeight: '500',
   },
   hangmanContainer: {
     alignItems: 'center',
@@ -362,6 +388,27 @@ const styles = StyleSheet.create({
   alphabetContainer: {
     marginBottom: 20,
   },
+  hintButton: {
+    backgroundColor: 'rgba(251, 191, 36, 0.2)',
+    borderColor: 'rgba(251, 191, 36, 0.4)',
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginBottom: 16,
+  },
+  hintButtonDisabled: {
+    opacity: 0.5,
+  },
+  hintButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
   alphabetTitle: {
     fontSize: 16,
     color: '#e0e7ff',
@@ -376,8 +423,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   letterButton: {
-    width: 40,
-    height: 40,
+    width: 36,
+    height: 36,
     borderRadius: 8,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     justifyContent: 'center',
