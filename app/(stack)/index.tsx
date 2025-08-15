@@ -47,7 +47,7 @@ export default function HomeScreen() {
             <View style={styles.userInfo}>
               <Text style={styles.welcomeText}>¡Hola, {userProfile.displayName}!</Text>
               <Text style={styles.statsText}>
-                Partidas: {userProfile.gamesPlayed} | Ganadas: {userProfile.gamesWon}
+                Jugadas: {userProfile.gamesPlayed} | Ganadas: {userProfile.gamesWon} | Perdidas: {userProfile.gamesLost}
               </Text>
             </View>
           )}

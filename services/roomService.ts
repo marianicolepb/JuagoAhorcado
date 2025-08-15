@@ -30,20 +30,22 @@ export class RoomService {
   }
 
   // Crear nueva sala
-  static async createRoom(hostId: string, hostName: string): Promise<string> {
+  static async createRoom(hostId: string, hostName: string, category: string = 'todas', difficulty: 'easy' | 'medium' | 'hard' = 'medium'): Promise<string> {
     const code = this.generateRoomCode();
     
     // Verificar que el código no exista
     const existingRoom = await this.getRoomByCode(code);
     if (existingRoom) {
       // Si existe, generar otro código recursivamente
-      return this.createRoom(hostId, hostName);
+      return this.createRoom(hostId, hostName, category, difficulty);
     }
 
     const roomData: Omit<Room, 'id'> = {
       code,
       hostId,
       hostName,
+      category,
+      difficulty,
       players: [{
         id: hostId,
         name: hostName,
@@ -57,6 +59,7 @@ export class RoomService {
       wrongGuesses: 0,
       maxWrongGuesses: 6,
       currentPlayerIndex: 0,
+      hintUsed: false,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -223,15 +226,17 @@ export class RoomService {
   }
 
   // Iniciar juego (solo host)
-  static async startGame(roomId: string, word: string): Promise<void> {
+  static async startGame(roomId: string, word: string, hint: string): Promise<void> {
     const roomRef = doc(db, 'rooms', roomId);
     
     await updateDoc(roomRef, {
       status: 'playing',
       currentWord: word.toLowerCase(),
+      currentHint: hint,
       guessedLetters: [],
       wrongGuesses: 0,
       currentPlayerIndex: 0,
+      hintUsed: false,
       updatedAt: Timestamp.fromDate(new Date())
     });
   }

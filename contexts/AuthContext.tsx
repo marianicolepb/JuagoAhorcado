@@ -18,6 +18,7 @@ interface UserProfile {
   photoURL?: string;
   gamesPlayed: number;
   gamesWon: number;
+  gamesLost: number;
   createdAt: Date;
 }
 
@@ -78,6 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           photoURL: data.photoURL,
           gamesPlayed: data.gamesPlayed || 0,
           gamesWon: data.gamesWon || 0,
+          gamesLost: data.gamesLost || 0,
           createdAt: data.createdAt?.toDate() || new Date(),
         });
       }
@@ -108,6 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         photoURL: null,
         gamesPlayed: 0,
         gamesWon: 0,
+        gamesLost: 0,
         createdAt: new Date(),
       });
       

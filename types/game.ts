@@ -6,11 +6,15 @@ export interface Room {
   players: Player[];
   status: 'waiting' | 'playing' | 'finished';
   maxPlayers: number;
+  category: string;
+  difficulty: 'easy' | 'medium' | 'hard';
   currentWord?: string;
+  currentHint?: string;
   guessedLetters: string[];
   wrongGuesses: number;
   maxWrongGuesses: number;
   currentPlayerIndex: number;
+  hintUsed: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -28,7 +32,7 @@ export interface Word {
   word: string;
   category: string;
   difficulty: 'easy' | 'medium' | 'hard';
-  hint?: string;
+  hint: string;
 }
 
 export interface GameState {
