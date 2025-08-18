@@ -10,16 +10,7 @@ import {
   TextInput
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { 
-  User, 
-  Mail, 
-  Trophy, 
-  Settings, 
-  LogOut, 
-  Edit3,
-  Key,
-  Coins
-} from 'lucide-react-native';
+import { User, Mail, Trophy, Settings, LogOut, CreditCard as Edit3, Key, Coins } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'expo-router';
 import { sendPasswordResetEmail } from 'firebase/auth';
