@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
-  StyleSheet, 
-  Alert,
-  ScrollView 
-} from 'react-native';
-import { useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
+import { Eye, EyeOff, Lock, Mail } from 'lucide-react-native';
+import React, { useState } from 'react';
+import {
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from 'react-native';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -42,26 +42,28 @@ export default function LoginScreen() {
 
   return (
     <LinearGradient
-      colors={['#1e3a8a', '#3b82f6']}
+      colors={['#052e16', '#064e3b']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
       style={styles.container}
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.content}>
+        <View style={styles.card}>
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.title}>Bienvenido</Text>
-            <Text style={styles.subtitle}>Inicia sesión para jugar</Text>
+            <Text style={styles.title}>DomHanged</Text>
+            <Text style={styles.subtitle}>¡Inicia sesión y diviértete!</Text>
           </View>
 
           {/* Form */}
           <View style={styles.form}>
             {/* Email Input */}
             <View style={styles.inputContainer}>
-              <Mail color="#94a3b8" size={20} style={styles.inputIcon} />
+              <Mail color="#34d399" size={22} style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
                 placeholder="Correo electrónico"
-                placeholderTextColor="#94a3b8"
+                placeholderTextColor="#a7f3d0"
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
@@ -72,11 +74,11 @@ export default function LoginScreen() {
 
             {/* Password Input */}
             <View style={styles.inputContainer}>
-              <Lock color="#94a3b8" size={20} style={styles.inputIcon} />
+              <Lock color="#34d399" size={22} style={styles.inputIcon} />
               <TextInput
                 style={[styles.input, styles.passwordInput]}
                 placeholder="Contraseña"
-                placeholderTextColor="#94a3b8"
+                placeholderTextColor="#a7f3d0"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
@@ -87,9 +89,9 @@ export default function LoginScreen() {
                 style={styles.eyeIcon}
               >
                 {showPassword ? (
-                  <EyeOff color="#94a3b8" size={20} />
+                  <EyeOff color="#a7f3d0" size={20} />
                 ) : (
-                  <Eye color="#94a3b8" size={20} />
+                  <Eye color="#a7f3d0" size={20} />
                 )}
               </TouchableOpacity>
             </View>
@@ -100,9 +102,14 @@ export default function LoginScreen() {
               onPress={handleLogin}
               disabled={loading}
             >
-              <Text style={styles.buttonText}>
-                {loading ? 'Iniciando...' : 'Iniciar Sesión'}
-              </Text>
+              <LinearGradient
+                colors={['#10b981', '#059669']}
+                style={styles.buttonGradient}
+              >
+                <Text style={styles.buttonText}>
+                  {loading ? 'Iniciando...' : 'Iniciar Sesión'}
+                </Text>
+              </LinearGradient>
             </TouchableOpacity>
 
             {/* Register Link */}
@@ -111,7 +118,7 @@ export default function LoginScreen() {
               onPress={() => router.push('/auth/register')}
             >
               <Text style={styles.registerText}>
-                ¿No tienes cuenta? Regístrate aquí
+                ¿No tienes cuenta? <Text style={styles.registerHighlight}>Regístrate aquí</Text>
               </Text>
             </TouchableOpacity>
           </View>
@@ -127,26 +134,31 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-  },
-  content: {
-    flex: 1,
     justifyContent: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 40,
+    padding: 20,
+  },
+  card: {
+    backgroundColor: 'rgba(6,78,59,0.85)', // verde oscuro translúcido
+    borderRadius: 20,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 8,
   },
   header: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 30,
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 8,
+    color: '#ecfdf5', // verde casi blanco
+    marginBottom: 6,
   },
   subtitle: {
     fontSize: 16,
-    color: '#e0e7ff',
+    color: '#a7f3d0', // verde menta
     textAlign: 'center',
   },
   form: {
@@ -155,20 +167,20 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 12,
+    backgroundColor: '#022c22',
+    borderRadius: 14,
     marginBottom: 16,
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: '#064e3b',
   },
   inputIcon: {
-    marginRight: 12,
+    marginRight: 10,
   },
   input: {
     flex: 1,
-    height: 50,
-    color: '#fff',
+    height: 52,
+    color: '#ecfdf5',
     fontSize: 16,
   },
   passwordInput: {
@@ -180,28 +192,34 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   button: {
-    backgroundColor: '#10b981',
-    borderRadius: 12,
-    height: 50,
+    borderRadius: 14,
+    height: 52,
+    marginTop: 8,
+    overflow: 'hidden',
+  },
+  buttonGradient: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 8,
   },
   buttonDisabled: {
-    opacity: 0.6,
+    opacity: 0.7,
   },
   buttonText: {
-    color: '#fff',
+    color: '#ecfdf5',
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   registerLink: {
     marginTop: 24,
     alignItems: 'center',
   },
   registerText: {
-    color: '#e0e7ff',
-    fontSize: 14,
-    textDecorationLine: 'underline',
+    color: '#a7f3d0',
+    fontSize: 15,
+  },
+  registerHighlight: {
+    color: '#34d399',
+    fontWeight: '600',
   },
 });

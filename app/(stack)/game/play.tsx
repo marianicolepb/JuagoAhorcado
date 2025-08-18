@@ -7,7 +7,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
   Crown,
-  LogOut
+  LogOut,
+  Lightbulb,
+  Eye
 } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import {
@@ -17,7 +19,8 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
+  Modal
 } from 'react-native';
 
 const { width } = Dimensions.get('window');
@@ -27,10 +30,11 @@ export default function GameScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const [room, setRoom] = useState<Room | null>(null);
-  const [selectedLetters, setSelectedLetters] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showHint, setShowHint] = useState(false);
 
-  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  // Alfabeto completo con Ñ (27 letras)
+  const alphabet = 'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ'.split('');
 
   useEffect(() => {
     if (!roomId || !user) return;
@@ -92,6 +96,38 @@ export default function GameScreen() {
     }
   };
 
+  const handleUseHint = async () => {
+    if (!room || !user || loading) return;
+
+    if (room.hintUsed) {
+      Alert.alert('Pista ya usada', 'Ya se usó la pista en esta partida');
+      return;
+    }
+
+    Alert.alert(
+      'Usar Pista',
+      'Usar la pista te costará 1 error. ¿Estás seguro?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { 
+          text: 'Usar Pista', 
+          onPress: async () => {
+            setLoading(true);
+            try {
+              await GameService.applyHint(room.id);
+              setShowHint(true);
+            } catch (error) {
+              console.error('Error using hint:', error);
+              Alert.alert('Error', 'No se pudo usar la pista');
+            } finally {
+              setLoading(false);
+            }
+          }
+        }
+      ]
+    );
+  };
+
   const handleLeaveGame = () => {
     Alert.alert(
       'Salir del juego',
@@ -110,6 +146,29 @@ export default function GameScreen() {
         }
       ]
     );
+  };
+
+  const getDifficultyLabel = (difficulty: string) => {
+    switch (difficulty) {
+      case 'easy': return 'Fácil';
+      case 'medium': return 'Medio';
+      case 'hard': return 'Difícil';
+      default: return difficulty;
+    }
+  };
+
+  const getCategoryLabel = (category: string) => {
+    switch (category) {
+      case 'todas': return 'Todas';
+      case 'animales': return 'Animales';
+      case 'objetos': return 'Objetos';
+      case 'naturaleza': return 'Naturaleza';
+      case 'comida': return 'Comida';
+      case 'lugares': return 'Lugares';
+      case 'ciencia': return 'Ciencia';
+      case 'profesiones': return 'Profesiones';
+      default: return category.charAt(0).toUpperCase() + category.slice(1);
+    }
   };
 
   if (!room || !room.currentWord) {
@@ -145,6 +204,15 @@ export default function GameScreen() {
         <View style={styles.content}>
           {/* Game Status */}
           <View style={styles.gameStatus}>
+            <View style={styles.gameMetaInfo}>
+              <Text style={styles.categoryText}>
+                📂 {getCategoryLabel(room.category)}
+              </Text>
+              <Text style={styles.difficultyText}>
+                🎯 {getDifficultyLabel(room.difficulty)}
+              </Text>
+            </View>
+            
             <View style={styles.turnInfo}>
               <Text style={styles.turnLabel}>Turno de:</Text>
               <View style={styles.currentPlayerCard}>
@@ -161,6 +229,9 @@ export default function GameScreen() {
             <View style={styles.gameStats}>
               <Text style={styles.wrongGuesses}>
                 Errores: {room.wrongGuesses}/{room.maxWrongGuesses}
+              </Text>
+              <Text style={styles.hintStatus}>
+                Pista: {room.hintUsed ? 'Usada' : 'Disponible'}
               </Text>
             </View>
           </View>
@@ -183,6 +254,23 @@ export default function GameScreen() {
                 {wrongLetters.map(letter => letter.toUpperCase()).join(', ')}
               </Text>
             </View>
+          )}
+
+          {/* Hint Button */}
+          {!room.hintUsed && (
+            <TouchableOpacity
+              style={[
+                styles.hintButton,
+                !isMyTurn && styles.hintButtonDisabled
+              ]}
+              onPress={handleUseHint}
+              disabled={!isMyTurn || loading}
+            >
+              <Lightbulb color="#fff" size={20} />
+              <Text style={styles.hintButtonText}>
+                Usar Pista (Cuesta 1 error)
+              </Text>
+            </TouchableOpacity>
           )}
 
           {/* Alphabet */}
@@ -255,6 +343,32 @@ export default function GameScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {/* Hint Modal */}
+      <Modal
+        visible={showHint}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowHint(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.hintModal}>
+            <View style={styles.hintHeader}>
+              <Lightbulb color="#fbbf24" size={24} />
+              <Text style={styles.hintTitle}>💡 Pista</Text>
+            </View>
+            <Text style={styles.hintText}>
+              {room.currentHint || 'No hay pista disponible para esta palabra.'}
+            </Text>
+            <TouchableOpacity
+              style={styles.hintCloseButton}
+              onPress={() => setShowHint(false)}
+            >
+              <Text style={styles.hintCloseButtonText}>Entendido</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </LinearGradient>
   );
 }
@@ -286,6 +400,30 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  gameMetaInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  categoryText: {
+    fontSize: 14,
+    color: '#e0e7ff',
+    fontWeight: '600',
+  },
+  difficultyText: {
+    fontSize: 14,
+    color: '#e0e7ff',
+    fontWeight: '600',
   },
   turnInfo: {
     alignItems: 'center',
@@ -320,12 +458,19 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   gameStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
   wrongGuesses: {
     fontSize: 16,
     color: '#f87171',
     fontWeight: '600',
+  },
+  hintStatus: {
+    fontSize: 14,
+    color: '#94a3b8',
+    fontWeight: '500',
   },
   hangmanContainer: {
     alignItems: 'center',
@@ -337,6 +482,11 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   word: {
     fontSize: 32,
@@ -359,6 +509,32 @@ const styles = StyleSheet.create({
     color: '#f87171',
     fontWeight: '600',
   },
+  hintButton: {
+    backgroundColor: 'rgba(251, 191, 36, 0.2)',
+    borderColor: 'rgba(251, 191, 36, 0.4)',
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginBottom: 16,
+    shadowColor: '#fbbf24',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  hintButtonDisabled: {
+    opacity: 0.5,
+  },
+  hintButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
   alphabetContainer: {
     marginBottom: 20,
   },
@@ -373,17 +549,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
-    gap: 8,
+    gap: 6,
   },
   letterButton: {
-    width: 40,
-    height: 40,
+    width: 34,
+    height: 34,
     borderRadius: 8,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.3)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   letterButtonUsed: {
     opacity: 0.5,
@@ -391,16 +572,18 @@ const styles = StyleSheet.create({
   letterButtonCorrect: {
     backgroundColor: 'rgba(16, 185, 129, 0.3)',
     borderColor: '#10b981',
+    shadowColor: '#10b981',
   },
   letterButtonWrong: {
     backgroundColor: 'rgba(239, 68, 68, 0.3)',
     borderColor: '#ef4444',
+    shadowColor: '#ef4444',
   },
   letterButtonDisabled: {
     opacity: 0.3,
   },
   letterButtonText: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#fff',
   },
@@ -434,6 +617,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(16, 185, 129, 0.3)',
     borderWidth: 1,
     borderColor: '#10b981',
+    shadowColor: '#10b981',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
   },
   playerChipText: {
     fontSize: 14,
@@ -454,10 +642,65 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 8,
+    shadowColor: '#ef4444',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
   leaveButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '500',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  hintModal: {
+    backgroundColor: '#1e3a8a',
+    borderRadius: 16,
+    padding: 24,
+    width: '100%',
+    maxWidth: 350,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    elevation: 10,
+  },
+  hintHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+    gap: 8,
+  },
+  hintTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  hintText: {
+    fontSize: 16,
+    color: '#e0e7ff',
+    textAlign: 'center',
+    lineHeight: 24,
+    marginBottom: 20,
+  },
+  hintCloseButton: {
+    backgroundColor: '#10b981',
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+  },
+  hintCloseButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

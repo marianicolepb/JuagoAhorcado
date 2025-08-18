@@ -69,13 +69,13 @@ export default function LobbyScreen() {
     setLoading(true);
     try {
       // Obtener palabra aleatoria
-      const word = await WordService.getRandomWord('medium');
+      const word = await WordService.getRandomWord(room.difficulty, room.category);
       if (!word) {
         Alert.alert('Error', 'No se pudo obtener una palabra para el juego');
         return;
       }
 
-      await RoomService.startGame(room.id, word.word);
+      await RoomService.startGame(room.id, word.word, word.hint);
     } catch (error) {
       console.error('Error iniciando juego:', error);
       Alert.alert('Error', 'No se pudo iniciar el juego');
@@ -202,14 +202,26 @@ export default function LobbyScreen() {
             <Text style={styles.gameInfoTitle}>Configuración</Text>
             <View style={styles.gameInfoGrid}>
               <View style={styles.gameInfoItem}>
+                <Text style={styles.gameInfoLabel}>Categoría</Text>
+                <Text style={styles.gameInfoValue}>
+                  {room.category === 'todas' ? 'Todas' : room.category.charAt(0).toUpperCase() + room.category.slice(1)}
+                </Text>
+              </View>
+              <View style={styles.gameInfoItem}>
+                <Text style={styles.gameInfoLabel}>Dificultad</Text>
+                <Text style={styles.gameInfoValue}>
+                  {room.difficulty === 'easy' ? 'Fácil' : room.difficulty === 'medium' ? 'Medio' : 'Difícil'}
+                </Text>
+              </View>
+              <View style={styles.gameInfoItem}>
                 <Clock color="#94a3b8" size={16} />
                 <Text style={styles.gameInfoLabel}>Turnos</Text>
                 <Text style={styles.gameInfoValue}>Rotativos</Text>
               </View>
               <View style={styles.gameInfoItem}>
                 <UserCheck color="#94a3b8" size={16} />
-                <Text style={styles.gameInfoLabel}>Intentos</Text>
-                <Text style={styles.gameInfoValue}>6 máximo</Text>
+                <Text style={styles.gameInfoLabel}>Pistas</Text>
+                <Text style={styles.gameInfoValue}>1 disponible</Text>
               </View>
             </View>
           </View>
@@ -386,9 +398,12 @@ const styles = StyleSheet.create({
   },
   gameInfoGrid: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: 16,
   },
   gameInfoItem: {
+    width: '45%',
     alignItems: 'center',
     gap: 4,
   },

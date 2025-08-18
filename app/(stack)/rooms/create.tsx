@@ -19,6 +19,7 @@ export default function CreateRoomScreen() {
   const { user, userProfile } = useAuth();
   const [loading, setLoading] = useState(false);
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
+  const [category, setCategory] = useState<string>('todas');
 
   const handleCreateRoom = async () => {
     if (!user || !userProfile) {
@@ -32,7 +33,7 @@ export default function CreateRoomScreen() {
       await WordService.initializeWords();
       
       // Crear la sala
-      const roomId = await RoomService.createRoom(user.uid, userProfile.displayName);
+      const roomId = await RoomService.createRoom(user.uid, userProfile.displayName, category, difficulty);
       
       Alert.alert(
         '¡Sala creada!', 
@@ -51,9 +52,38 @@ export default function CreateRoomScreen() {
   };
 
   const difficultyOptions = [
-    { key: 'easy', label: 'Fácil', description: 'Palabras cortas y comunes', color: '#10b981' },
-    { key: 'medium', label: 'Medio', description: 'Palabras de dificultad moderada', color: '#f59e0b' },
-    { key: 'hard', label: 'Difícil', description: 'Palabras largas y complejas', color: '#ef4444' }
+    { 
+      key: 'easy', 
+      label: 'Fácil', 
+      description: '3-5 letras, palabras simples', 
+      color: '#10b981',
+      shadowColor: '#10b981'
+    },
+    { 
+      key: 'medium', 
+      label: 'Medio', 
+      description: '6-8 letras, dificultad moderada', 
+      color: '#f59e0b',
+      shadowColor: '#f59e0b'
+    },
+    { 
+      key: 'hard', 
+      label: 'Difícil', 
+      description: '9+ letras, palabras complejas', 
+      color: '#ef4444',
+      shadowColor: '#ef4444'
+    }
+  ];
+
+  const categoryOptions = [
+    { key: 'todas', label: 'Todas', description: 'Palabras de cualquier categoría', icon: '🎯' },
+    { key: 'animales', label: 'Animales', description: 'Fauna del mundo', icon: '🐾' },
+    { key: 'objetos', label: 'Objetos', description: 'Cosas de uso diario', icon: '🏠' },
+    { key: 'naturaleza', label: 'Naturaleza', description: 'Elementos naturales', icon: '🌿' },
+    { key: 'comida', label: 'Comida', description: 'Alimentos y bebidas', icon: '🍎' },
+    { key: 'lugares', label: 'Lugares', description: 'Sitios y ubicaciones', icon: '🏛️' },
+    { key: 'ciencia', label: 'Ciencia', description: 'Términos científicos', icon: '🔬' },
+    { key: 'profesiones', label: 'Profesiones', description: 'Trabajos y oficios', icon: '👨‍💼' }
   ];
 
   return (
@@ -86,7 +116,10 @@ export default function CreateRoomScreen() {
                   style={[
                     styles.difficultyOption,
                     difficulty === option.key && styles.difficultyOptionSelected,
-                    { borderColor: option.color }
+                    { 
+                      borderColor: option.color,
+                      shadowColor: difficulty === option.key ? option.shadowColor : 'transparent'
+                    }
                   ]}
                   onPress={() => setDifficulty(option.key as any)}
                 >
@@ -110,9 +143,57 @@ export default function CreateRoomScreen() {
             </View>
           </View>
 
+          {/* Category Selection */}
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>🏷️ Categoría</Text>
+            </View>
+            
+            <View style={styles.categoryContainer}>
+              {categoryOptions.map((option) => (
+                <TouchableOpacity
+                  key={option.key}
+                  style={[
+                    styles.categoryOption,
+                    category === option.key && styles.categoryOptionSelected
+                  ]}
+                  onPress={() => setCategory(option.key)}
+                >
+                  <Text style={styles.categoryIcon}>{option.icon}</Text>
+                  <View style={styles.categoryInfo}>
+                    <Text style={[
+                      styles.categoryLabel,
+                      category === option.key && styles.categoryLabelSelected
+                    ]}>
+                      {option.label}
+                    </Text>
+                    <Text style={[
+                      styles.categoryDescription,
+                      category === option.key && styles.categoryDescriptionSelected
+                    ]}>
+                      {option.description}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
           {/* Game Info */}
           <View style={styles.gameInfo}>
             <Text style={styles.gameInfoTitle}>Configuración del Juego</Text>
+            <View style={styles.gameInfoItem}>
+              <Text style={styles.gameInfoLabel}>Categoría:</Text>
+              <Text style={styles.gameInfoValue}>
+                {categoryOptions.find(c => c.key === category)?.label}
+              </Text>
+            </View>
+            <View style={styles.gameInfoItem}>
+              <Text style={styles.gameInfoLabel}>Dificultad:</Text>
+              <Text style={styles.gameInfoValue}>
+                {difficultyOptions.find(d => d.key === difficulty)?.label}
+              </Text>
+            </View>
             <View style={styles.gameInfoItem}>
               <Text style={styles.gameInfoLabel}>Jugadores máximos:</Text>
               <Text style={styles.gameInfoValue}>6</Text>
@@ -122,8 +203,12 @@ export default function CreateRoomScreen() {
               <Text style={styles.gameInfoValue}>6</Text>
             </View>
             <View style={styles.gameInfoItem}>
-              <Text style={styles.gameInfoLabel}>Turnos:</Text>
-              <Text style={styles.gameInfoValue}>Rotativos</Text>
+              <Text style={styles.gameInfoLabel}>Pistas disponibles:</Text>
+              <Text style={styles.gameInfoValue}>1 (cuesta 1 error)</Text>
+            </View>
+            <View style={styles.gameInfoItem}>
+              <Text style={styles.gameInfoLabel}>Alfabeto:</Text>
+              <Text style={styles.gameInfoValue}>27 letras (A-Z + Ñ)</Text>
             </View>
           </View>
 
@@ -196,9 +281,17 @@ const styles = StyleSheet.create({
     padding: 16,
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.2)',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
   difficultyOptionSelected: {
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    shadowOpacity: 0.6,
+    shadowRadius: 12,
+    elevation: 8,
+    transform: [{ scale: 1.02 }],
   },
   difficultyHeader: {
     flexDirection: 'row',
@@ -226,11 +319,63 @@ const styles = StyleSheet.create({
   difficultyDescriptionSelected: {
     color: '#e0e7ff',
   },
+  categoryContainer: {
+    gap: 8,
+  },
+  categoryOption: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 12,
+    padding: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  categoryOptionSelected: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: '#10b981',
+    shadowColor: '#10b981',
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 6,
+    transform: [{ scale: 1.01 }],
+  },
+  categoryIcon: {
+    fontSize: 24,
+    marginRight: 12,
+  },
+  categoryInfo: {
+    flex: 1,
+  },
+  categoryLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#e0e7ff',
+    marginBottom: 2,
+  },
+  categoryLabelSelected: {
+    color: '#fff',
+  },
+  categoryDescription: {
+    fontSize: 12,
+    color: '#94a3b8',
+  },
+  categoryDescriptionSelected: {
+    color: '#e0e7ff',
+  },
   gameInfo: {
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 12,
     padding: 20,
     marginBottom: 30,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
   gameInfoTitle: {
     fontSize: 18,
@@ -261,6 +406,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 12,
+    shadowColor: '#10b981',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 8,
   },
   createButtonDisabled: {
     opacity: 0.6,

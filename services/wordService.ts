@@ -11,37 +11,60 @@ import { Word } from '@/types/game';
 export class WordService {
   private static wordsCollection = collection(db, 'words');
 
-  // Palabras predefinidas para inicializar la base de datos
+  // Base de datos expandida con 45 palabras organizadas por dificultad real
   private static defaultWords: Omit<Word, 'id'>[] = [
-    // Fácil
-    { word: 'casa', category: 'objetos', difficulty: 'easy', hint: 'Lugar donde vives' },
-    { word: 'perro', category: 'animales', difficulty: 'easy', hint: 'Mejor amigo del hombre' },
-    { word: 'agua', category: 'naturaleza', difficulty: 'easy', hint: 'Líquido vital' },
-    { word: 'sol', category: 'naturaleza', difficulty: 'easy', hint: 'Estrella que nos da luz' },
-    { word: 'mesa', category: 'objetos', difficulty: 'easy', hint: 'Mueble para comer' },
-    { word: 'libro', category: 'objetos', difficulty: 'easy', hint: 'Se usa para leer' },
-    { word: 'gato', category: 'animales', difficulty: 'easy', hint: 'Mascota que maúlla' },
-    { word: 'flor', category: 'naturaleza', difficulty: 'easy', hint: 'Parte colorida de las plantas' },
+    // Fácil (3-5 letras)
+    { word: 'casa', category: 'objetos', difficulty: 'easy', hint: 'Construcción donde vive una familia' },
+    { word: 'perro', category: 'animales', difficulty: 'easy', hint: 'Animal doméstico fiel y leal al hombre' },
+    { word: 'agua', category: 'naturaleza', difficulty: 'easy', hint: 'Líquido transparente esencial para la vida' },
+    { word: 'sol', category: 'naturaleza', difficulty: 'easy', hint: 'Estrella que ilumina y calienta la Tierra' },
+    { word: 'mesa', category: 'objetos', difficulty: 'easy', hint: 'Mueble plano con patas para comer o trabajar' },
+    { word: 'libro', category: 'objetos', difficulty: 'easy', hint: 'Conjunto de páginas con texto para leer' },
+    { word: 'gato', category: 'animales', difficulty: 'easy', hint: 'Felino doméstico que maúlla y ronronea' },
+    { word: 'flor', category: 'naturaleza', difficulty: 'easy', hint: 'Parte colorida y aromática de las plantas' },
+    { word: 'pan', category: 'comida', difficulty: 'easy', hint: 'Alimento básico hecho con harina y agua' },
+    { word: 'mar', category: 'naturaleza', difficulty: 'easy', hint: 'Gran extensión de agua salada' },
+    { word: 'ojo', category: 'cuerpo', difficulty: 'easy', hint: 'Órgano de la vista en los seres vivos' },
+    { word: 'pie', category: 'cuerpo', difficulty: 'easy', hint: 'Extremidad inferior para caminar' },
+    { word: 'luz', category: 'naturaleza', difficulty: 'easy', hint: 'Energía que permite ver las cosas' },
+    { word: 'niño', category: 'personas', difficulty: 'easy', hint: 'Persona de corta edad' },
+    { word: 'amor', category: 'emociones', difficulty: 'easy', hint: 'Sentimiento profundo de cariño' },
     
-    // Medio
-    { word: 'computadora', category: 'tecnologia', difficulty: 'medium', hint: 'Máquina para trabajar y jugar' },
-    { word: 'elefante', category: 'animales', difficulty: 'medium', hint: 'Animal grande con trompa' },
-    { word: 'montaña', category: 'naturaleza', difficulty: 'medium', hint: 'Elevación natural del terreno' },
-    { word: 'hospital', category: 'lugares', difficulty: 'medium', hint: 'Lugar donde curan enfermos' },
-    { word: 'guitarra', category: 'musica', difficulty: 'medium', hint: 'Instrumento de cuerdas' },
-    { word: 'biblioteca', category: 'lugares', difficulty: 'medium', hint: 'Lugar lleno de libros' },
-    { word: 'mariposa', category: 'animales', difficulty: 'medium', hint: 'Insecto con alas coloridas' },
-    { word: 'chocolate', category: 'comida', difficulty: 'medium', hint: 'Dulce favorito de muchos' },
+    // Medio (6-8 letras)
+    { word: 'elefante', category: 'animales', difficulty: 'medium', hint: 'Mamífero gigante con trompa larga y orejas grandes' },
+    { word: 'montaña', category: 'naturaleza', difficulty: 'medium', hint: 'Elevación natural muy alta del terreno' },
+    { word: 'hospital', category: 'lugares', difficulty: 'medium', hint: 'Edificio donde atienden a los enfermos' },
+    { word: 'guitarra', category: 'objetos', difficulty: 'medium', hint: 'Instrumento musical de seis cuerdas' },
+    { word: 'mariposa', category: 'animales', difficulty: 'medium', hint: 'Insecto volador con alas coloridas y delicadas' },
+    { word: 'chocolate', category: 'comida', difficulty: 'medium', hint: 'Dulce hecho con cacao, muy popular' },
+    { word: 'ventana', category: 'objetos', difficulty: 'medium', hint: 'Abertura en la pared para ver afuera' },
+    { word: 'escuela', category: 'lugares', difficulty: 'medium', hint: 'Lugar donde los niños van a aprender' },
+    { word: 'corazón', category: 'cuerpo', difficulty: 'medium', hint: 'Órgano que bombea sangre por el cuerpo' },
+    { word: 'planeta', category: 'naturaleza', difficulty: 'medium', hint: 'Cuerpo celeste que orbita una estrella' },
+    { word: 'familia', category: 'personas', difficulty: 'medium', hint: 'Grupo de personas unidas por parentesco' },
+    { word: 'jardín', category: 'lugares', difficulty: 'medium', hint: 'Espacio con plantas y flores cultivadas' },
+    { word: 'teléfono', category: 'objetos', difficulty: 'medium', hint: 'Aparato para comunicarse a distancia' },
+    { word: 'película', category: 'entretenimiento', difficulty: 'medium', hint: 'Historia filmada para ver en cine' },
+    { word: 'español', category: 'idiomas', difficulty: 'medium', hint: 'Idioma que se habla en España y América' },
     
-    // Difícil
-    { word: 'refrigerador', category: 'electrodomesticos', difficulty: 'hard', hint: 'Mantiene la comida fría' },
-    { word: 'arquitectura', category: 'profesiones', difficulty: 'hard', hint: 'Arte de diseñar edificios' },
-    { word: 'democracia', category: 'politica', difficulty: 'hard', hint: 'Sistema de gobierno del pueblo' },
-    { word: 'fotosintesis', category: 'ciencia', difficulty: 'hard', hint: 'Proceso de las plantas con luz' },
-    { word: 'paleontologia', category: 'ciencia', difficulty: 'hard', hint: 'Estudio de fósiles antiguos' },
-    { word: 'psicologia', category: 'ciencia', difficulty: 'hard', hint: 'Estudio de la mente humana' },
-    { word: 'extraordinario', category: 'adjetivos', difficulty: 'hard', hint: 'Algo muy especial o raro' },
-    { word: 'responsabilidad', category: 'valores', difficulty: 'hard', hint: 'Cumplir con tus deberes' }
+    // Difícil (9+ letras)
+    { word: 'refrigerador', category: 'objetos', difficulty: 'hard', hint: 'Electrodoméstico que mantiene los alimentos fríos' },
+    { word: 'arquitectura', category: 'profesiones', difficulty: 'hard', hint: 'Arte y ciencia de diseñar y construir edificios' },
+    { word: 'democracia', category: 'política', difficulty: 'hard', hint: 'Sistema de gobierno donde el pueblo elige' },
+    { word: 'fotosíntesis', category: 'ciencia', difficulty: 'hard', hint: 'Proceso donde las plantas producen alimento con luz' },
+    { word: 'paleontología', category: 'ciencia', difficulty: 'hard', hint: 'Ciencia que estudia fósiles de seres antiguos' },
+    { word: 'psicología', category: 'ciencia', difficulty: 'hard', hint: 'Ciencia que estudia la mente y comportamiento' },
+    { word: 'extraordinario', category: 'adjetivos', difficulty: 'hard', hint: 'Algo que sale de lo común, muy especial' },
+    { word: 'responsabilidad', category: 'valores', difficulty: 'hard', hint: 'Obligación de responder por los propios actos' },
+    { word: 'computadora', category: 'objetos', difficulty: 'hard', hint: 'Máquina electrónica para procesar información' },
+    { word: 'biblioteca', category: 'lugares', difficulty: 'hard', hint: 'Lugar donde se guardan y consultan libros' },
+    { word: 'universidad', category: 'lugares', difficulty: 'hard', hint: 'Institución de educación superior' },
+    { word: 'investigación', category: 'ciencia', difficulty: 'hard', hint: 'Proceso de búsqueda de conocimiento nuevo' },
+    { word: 'comunicación', category: 'conceptos', difficulty: 'hard', hint: 'Intercambio de información entre personas' },
+    { word: 'transformación', category: 'conceptos', difficulty: 'hard', hint: 'Cambio completo de forma o naturaleza' },
+    { word: 'biodiversidad', category: 'naturaleza', difficulty: 'hard', hint: 'Variedad de vida en el planeta Tierra' },
+    { word: 'programación', category: 'profesiones', difficulty: 'hard', hint: 'Arte de crear instrucciones para computadoras' },
+    { word: 'matemáticas', category: 'ciencia', difficulty: 'hard', hint: 'Ciencia que estudia números, formas y patrones' }
   ];
 
   // Inicializar palabras en la base de datos
@@ -67,13 +90,21 @@ export class WordService {
   }
 
   // Obtener palabra aleatoria por dificultad
-  static async getRandomWord(difficulty?: 'easy' | 'medium' | 'hard'): Promise<Word | null> {
+  static async getRandomWord(difficulty?: 'easy' | 'medium' | 'hard', category?: string): Promise<Word | null> {
     try {
-      let q = query(this.wordsCollection);
+      const conditions = [];
       
       if (difficulty) {
-        q = query(this.wordsCollection, where('difficulty', '==', difficulty));
+        conditions.push(where('difficulty', '==', difficulty));
       }
+      
+      if (category && category !== 'todas') {
+        conditions.push(where('category', '==', category));
+      }
+      
+      const q = conditions.length > 0 
+        ? query(this.wordsCollection, ...conditions)
+        : query(this.wordsCollection);
       
       const querySnapshot = await getDocs(q);
       

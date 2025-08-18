@@ -1,9 +1,9 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import { useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
-import { User, Users, Trophy, LogOut, Hash } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
+import { Hash, LogOut, Trophy, User, Users } from 'lucide-react-native';
+import React from 'react';
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -47,7 +47,7 @@ export default function HomeScreen() {
             <View style={styles.userInfo}>
               <Text style={styles.welcomeText}>¡Hola, {userProfile.displayName}!</Text>
               <Text style={styles.statsText}>
-                Partidas: {userProfile.gamesPlayed} | Ganadas: {userProfile.gamesWon}
+                Jugadas: {userProfile.gamesPlayed} | Ganadas: {userProfile.gamesWon} | Perdidas: {userProfile.gamesLost}
               </Text>
             </View>
           )}

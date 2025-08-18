@@ -82,10 +82,12 @@ export class GameService {
         const userData = userDoc.data();
         const newGamesPlayed = (userData.gamesPlayed || 0) + 1;
         const newGamesWon = won ? (userData.gamesWon || 0) + 1 : (userData.gamesWon || 0);
+        const newGamesLost = !won ? (userData.gamesLost || 0) + 1 : (userData.gamesLost || 0);
         
         await updateDoc(userRef, {
           gamesPlayed: newGamesPlayed,
-          gamesWon: newGamesWon
+          gamesWon: newGamesWon,
+          gamesLost: newGamesLost
         });
       }
     });
@@ -93,16 +95,59 @@ export class GameService {
     await Promise.all(updatePromises);
   }
 
+  // Usar pista (cuenta como 1 error)
+  static async applyHint(roomId: string): Promise<void> {
+    const roomRef = doc(db, 'rooms', roomId);
+    const roomDoc = await getDoc(roomRef);
+    
+    if (!roomDoc.exists()) {
+      throw new Error('La sala no existe');
+    }
+
+    const roomData = roomDoc.data() as Room;
+    
+    if (roomData.status !== 'playing') {
+      throw new Error('El juego no está activo');
+    }
+
+    if (roomData.hintUsed) {
+      throw new Error('Ya se usó la pista en esta partida');
+    }
+
+    const newWrongGuesses = roomData.wrongGuesses + 1;
+    let newStatus: Room['status'] = roomData.status;
+
+    // Verificar si el juego termina por usar la pista
+    if (newWrongGuesses >= roomData.maxWrongGuesses) {
+      newStatus = 'finished';
+      
+      // Actualizar estadísticas (perdieron)
+      await this.updatePlayerStats(
+        roomData.players.map(p => p.id),
+        false
+      );
+    }
+
+    await updateDoc(roomRef, {
+      hintUsed: true,
+      wrongGuesses: newWrongGuesses,
+      status: newStatus,
+      updatedAt: Timestamp.fromDate(new Date())
+    });
+  }
+
   // Reiniciar juego (solo host)
-  static async restartGame(roomId: string, newWord: string): Promise<void> {
+  static async restartGame(roomId: string, newWord: string, newHint: string): Promise<void> {
     const roomRef = doc(db, 'rooms', roomId);
     
     await updateDoc(roomRef, {
       status: 'playing',
       currentWord: newWord.toLowerCase(),
+      currentHint: newHint,
       guessedLetters: [],
       wrongGuesses: 0,
       currentPlayerIndex: 0,
+      hintUsed: false,
       updatedAt: Timestamp.fromDate(new Date())
     });
   }
