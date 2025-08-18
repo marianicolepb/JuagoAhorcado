@@ -15,10 +15,14 @@ interface UserProfile {
   uid: string;
   email: string;
   displayName: string;
+  avatar?: string;
   photoURL?: string;
   gamesPlayed: number;
   gamesWon: number;
   gamesLost: number;
+  points: number;
+  coins: number;
+  isOnline: boolean;
   createdAt: Date;
 }
 
@@ -76,10 +80,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           uid,
           email: data.email,
           displayName: data.displayName,
+          avatar: data.avatar || '🎯',
           photoURL: data.photoURL,
           gamesPlayed: data.gamesPlayed || 0,
           gamesWon: data.gamesWon || 0,
           gamesLost: data.gamesLost || 0,
+          points: data.points || 0,
+          coins: data.coins || 0,
+          isOnline: data.isOnline || false,
           createdAt: data.createdAt?.toDate() || new Date(),
         });
       }
@@ -107,10 +115,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await setDoc(doc(db, 'users', user.uid), {
         email: user.email,
         displayName,
+        avatar: '🎯',
         photoURL: null,
         gamesPlayed: 0,
         gamesWon: 0,
         gamesLost: 0,
+        points: 0,
+        coins: 100, // Monedas iniciales
+        isOnline: true,
         createdAt: new Date(),
       });
       
